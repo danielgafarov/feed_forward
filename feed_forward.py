@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import preprocessing
+import pickle
 
 def generate_target(number):
     result = np.full(10,0.01)
@@ -28,12 +29,16 @@ class NeuralNetwork():
     def sigmoid_derivative(self, x):
         Sx = self.sigmoid(x)
         return Sx * (1 - Sx)
-    
+
+
     #train the neural network
-    def train(self, inputs, targets,iterations):
-        for i in range(iterations):
+    def train(self, inputs,targets):
+        best_value = 0
+        stagnation = 0
+        print(f"Learning rate: {self.lr}")
+        while (stagnation < 3):
             for i in range(inputs.shape[0]):
-                #think abouts input
+                #think about input
                 think = self.think(inputs[i])
                 hidden = think[0]
                 output = think[1]
@@ -47,6 +52,19 @@ class NeuralNetwork():
                 self.who += self.lr * delta_who
                 delta_wih = np.dot(np.atleast_2d(Ehidden * self.sigmoid_derivative(hidden)).T, np.atleast_2d(inputs[i]))
                 self.wih += self.lr * delta_wih
+                
+            correct_guesses = 0
+            for i in range(inputs.shape[0]):
+                guess = np.argmax(n.think(inputs[i])[1])
+                if guess == targets[i]:
+                    correct_guesses += 1
+            if correct_guesses > best_value:
+                best_value = correct_guesses
+                stagnation = 0
+            else:
+                stagnation = stagnation + 1
+            
+            print(f"{(100 * correct_guesses/inputs.shape[0]):.2f}")
 
 
     #one calculation step of the network
@@ -61,21 +79,26 @@ if __name__ == "__main__":
     hidden_nodes = 200 #voodoo magic number
     output_nodes = 10 #numbers from [0:9]
 
-    learning_rate = 0.5 #feel free to play around with
+    learning_rate = 0.001 #feel free to play around with
+    
+    learning_rates = [0.001]
 
     training_data_file = open("mnist_train_full.csv")
     training_data_list = training_data_file.readlines()
     training_data_file.close()
+    
     targets = []
     for data in training_data_list:
         targets.append(int(data[0]))
     targets = np.array(targets)
     for i in range(len(training_data_list)):
         training_data_list[i] = training_data_list[i].split(',')[1:]
-    scaler = preprocessing.MinMaxScaler(feature_range=(0.01,0.99))
-    training_data_list = scaler.fit_transform(training_data_list)
+    #scaler = preprocessing.MinMaxScaler(feature_range=(0.01,0.99))
+    #training_data_list = scaler.fit_transform(training_data_list)
+    training_data_list = np.array(training_data_list,dtype=np.float32)/255
 
-    test_data_file = open("mnist_test_10.csv")
+
+    test_data_file = open("dataset/dataset.csv")
     test_data_list = test_data_file.readlines()
     test_data_file.close()
     test_targets = []
@@ -84,19 +107,37 @@ if __name__ == "__main__":
     test_targets = np.array(test_targets)
     for i in range(len(test_data_list)):
         test_data_list[i] = test_data_list[i].split(',')[1:]
-    test_data_list = scaler.fit_transform(test_data_list)
-
+    #test_data_list = scaler.fit_transform(test_data_list)
+    test_data_list = np.array(test_data_list,dtype=np.float32)/255
+    
+    """
     n = NeuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)
-    n.train(training_data_list,targets,2)
+    n.train(training_data_list,targets)
+    nn = open("./nn",'wb')
+    pickle.dump(n, nn, protocol=None, fix_imports=True, buffer_callback=None)
+    nn.close()"""
+    
+    nn = open("./nn",'rb')
+    n = pickle.load(nn)
+    nn.close()
     number_of_tests = test_targets.size
     correct_guesses = 0
     for i in range(number_of_tests):
-        guess = np.argmax(n.think(test_data_list[i])[1])
+        probabilities = n.think(test_data_list[i])[1]
+        guess = np.argmax(probabilities)
+        print(probabilities)
+        print(test_targets[i])
+        print(guess)
+        print()
         if guess == test_targets[i]:
             correct_guesses += 1
-    print(float(correct_guesses)/float(number_of_tests))
-    """print("plotting image: ")     
-    image_array = test_data_list[4].reshape((28,28))
-    plt.imshow(image_array,cmap='Greys', interpolation='None')
-    plt.show(block = False)"""
+    print(f"{100 * float(correct_guesses)/float(number_of_tests):.3f}")
+    print()
+    print()
+    print()
+    
+"""print("plotting image: ")     
+image_array = test_data_list[4].reshape((28,28))
+plt.imshow(image_array,cmap='Greys', interpolation='None')
+plt.show(block = False)"""
 # %%
