@@ -1,1 +1,5 @@
 # feed_forward
+## English Version
+A feedforward neural network multiplies input values with weights to calculate output values. This network in this project is being trained on 28x28 grayscale images of handwritten digits from the MNIST dataset. The three layers this network consists of are called the input, hidden and output layer. To represent each pixel of the input image the input layer requires 784 input perceptrons followed by the hidden layer with 200 perceptrons. The output layer has to show which digit is being recognized so 10 perceptrons - one for each digit - are needed.
+## Deutsche Version
+Ein Feedforward neuronales Netz multipliziert Eingabewerte mit Gewichten um Ausgabewerte zu berechnen. Das Netzwerk in diesem Projekt wird mit 28x28 Graubildern von handgeschriebenen Ziffern aus dem MNIST dataset trainiert. Die drei Schichten, aus denen dieses Netzwerk besteht, heißen Input, Hidden und Output Layer. Um jedes Pixel des Eingabebilds verarbeiten zu können, benötigt das Input Layer 784 Perceptrons. Das darauffolgende Hidden Layer hat 200 Perceptrons und das Output Layer hat, damit es jede der Zehn Ziffern repräsentieren kann, zehn Perceptrons.
