@@ -1,4 +1,3 @@
-#%%
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import preprocessing
@@ -80,9 +79,9 @@ if __name__ == "__main__":
     output_nodes = 10 #numbers from [0:9]
 
     learning_rate = 0.001 #feel free to play around with
-    
-    learning_rates = [0.001]
 
+    #Uncomment to train network from scratch
+    """
     training_data_file = open("mnist_train_full.csv")
     training_data_list = training_data_file.readlines()
     training_data_file.close()
@@ -96,9 +95,9 @@ if __name__ == "__main__":
     #scaler = preprocessing.MinMaxScaler(feature_range=(0.01,0.99))
     #training_data_list = scaler.fit_transform(training_data_list)
     training_data_list = np.array(training_data_list,dtype=np.float32)/255
+    """
 
-
-    test_data_file = open("dataset/dataset.csv")
+    test_data_file = open("mnist_test_10.csv")
     test_data_list = test_data_file.readlines()
     test_data_file.close()
     test_targets = []
@@ -110,12 +109,14 @@ if __name__ == "__main__":
     #test_data_list = scaler.fit_transform(test_data_list)
     test_data_list = np.array(test_data_list,dtype=np.float32)/255
     
+    #Uncomment to train network from scratch
     """
     n = NeuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)
     n.train(training_data_list,targets)
     nn = open("./nn",'wb')
     pickle.dump(n, nn, protocol=None, fix_imports=True, buffer_callback=None)
-    nn.close()"""
+    nn.close()
+    """
     
     nn = open("./nn",'rb')
     n = pickle.load(nn)
@@ -125,19 +126,12 @@ if __name__ == "__main__":
     for i in range(number_of_tests):
         probabilities = n.think(test_data_list[i])[1]
         guess = np.argmax(probabilities)
+        print("Probabilties for each digit (0 to 9)")
         print(probabilities)
-        print(test_targets[i])
-        print(guess)
+        print("Actual Digit: " + str(test_targets[i]))
+        print("Guess from neural network: " + str(guess))
         print()
         if guess == test_targets[i]:
             correct_guesses += 1
-    print(f"{100 * float(correct_guesses)/float(number_of_tests):.3f}")
-    print()
-    print()
-    print()
-    
-"""print("plotting image: ")     
-image_array = test_data_list[4].reshape((28,28))
-plt.imshow(image_array,cmap='Greys', interpolation='None')
-plt.show(block = False)"""
-# %%
+    print(f"Accuracy of neural network:  {100 * float(correct_guesses)/float(number_of_tests):.3f}")
+
